@@ -36,7 +36,13 @@ class CommunityFirebaseManager extends EventEmitter {
     pushEvent(event, processor, eventFilter) {
         if (eventFilter(event, this._cachedData)) {
             console.log('new event detected, processing to firebase: ' + event.id);
-            var firebaseData = processor.processEvent(event, this._cachedData);
+            var output = {
+                save: {},
+                delete: {},
+                update: {}
+            };
+            var self = this;
+            var firebaseData = processor.processEvent(event, this._cachedData, output);
             if(firebaseData['save']) {
                 var pushPaths = Object.keys(firebaseData['save']);
                 pushPaths.forEach((path) => {
@@ -55,7 +61,6 @@ class CommunityFirebaseManager extends EventEmitter {
                     self._rootFirebase.child(path).update(firebaseData['update'][path]);
                 });
             }
-            var self = this;
         }
     }
 

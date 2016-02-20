@@ -5,22 +5,22 @@ const MeetupProcessor = require('./meetup_processor');
 
 class GugMeetupProcessor extends MeetupProcessor {
 
-    processEvent(meetupEvent, syncedData) {
-        var output = {};
-        if(meetupEvent.status === 'canceled') {
+    processEvent(meetupEvent, syncedData, output) {
+        if(meetupEvent.status === 'canceled' || meetupEvent.status === 'deleted') {
             output['delete']['events/' + meetupEvent.id] = true;
         } else {
             try {
                 output['save']['events/' + meetupEvent.id] = {
-                    description: meetupEvent.description,
+                    description: meetupEvent.description ? meetupEvent.description : {},
                     duration: meetupEvent.duration ? meetupEvent.duration : -1,
                     meetup_url: meetupEvent.event_url,
                     name: meetupEvent.name,
                     time: meetupEvent.time ? meetupEvent.time : -1,
-                    venue: meetupEvent.venue ? meetupEvent.venue : null,
+                    venue: meetupEvent.venue ? meetupEvent.venue : {},
                     chapters: this._findChapters(syncedData['chapters'], [meetupEvent.group.id])
                 };
             } catch (e) {
+                console.error(e);
             }
         }
         return output;

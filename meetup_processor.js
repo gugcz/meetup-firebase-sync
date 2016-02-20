@@ -6,8 +6,8 @@ class MeetupProcessor {
     /**
      * Returns data as you want to store it in firebase
      */
-    processEvent(meetupEvent, syncedData){
-        return {};
+    processEvent(meetupEvent, syncedData, output){
+        return output;
     }
 
 }
