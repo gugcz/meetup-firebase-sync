@@ -4,6 +4,7 @@
 
 "use strict";
 
+const fs = require('fs');
 const CommunityFirebaseManager = require('./community_fb_manager');
 const MeetupSync = require('./meetup_sync');
 
@@ -35,7 +36,7 @@ fbManager.on('initialized', () => {
         fbManager.pushEvent(event, meetupProcessor);
     });
 
-    if(params[2] === '--import') {
+    if(params[0] === '--import') {
         console.log('Importing all existing meetups');
         meetupSync.fetchExisting(
             customFirebaseDefinition.dataModel.getImportGroupUrlNames(fbManager.syncedData));
