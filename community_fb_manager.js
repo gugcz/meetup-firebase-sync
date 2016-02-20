@@ -1,3 +1,7 @@
+/**
+ * @author Filip Prochazka (@jacktech24)
+ */
+
 "use strict";
 
 const EventEmitter = require('events');
@@ -14,7 +18,7 @@ class CommunityFirebaseManager extends EventEmitter {
 
         this._dataModel = dataModel;
         this._rootFirebase = new Firebase('https://' + urlKey + '.firebaseio.com/');
-        this._geoFire = new GeoFire(this._rootFirebase);
+        this._geoFire = new GeoFire(this._rootFirebase); //todo: utilize this
 
         var self = this;
         this._rootFirebase.authWithCustomToken(secret, function (error, authData) {
@@ -33,9 +37,9 @@ class CommunityFirebaseManager extends EventEmitter {
         });
     }
 
-    pushEvent(event, processor, eventFilter) {
-        if (eventFilter(event, this._cachedData)) {
-            console.log('new event detected, processing to firebase: ' + event.id);
+    pushEvent(event, processor) {
+        if (processor.eventsFilter(event, this._cachedData)) {
+            console.log('saving meetup ID:' + event.id + ', NAME: "' + event.name + '"');
             var output = {
                 save: {},
                 delete: {},
@@ -43,25 +47,29 @@ class CommunityFirebaseManager extends EventEmitter {
             };
             var self = this;
             var firebaseData = processor.processEvent(event, this._cachedData, output);
-            if(firebaseData['save']) {
+            if (firebaseData['save']) {
                 var pushPaths = Object.keys(firebaseData['save']);
                 pushPaths.forEach((path) => {
                     self._rootFirebase.child(path).set(firebaseData['save'][path]);
                 });
             }
-            if(firebaseData['delete']) {
+            if (firebaseData['delete']) {
                 var deletePaths = Object.keys(firebaseData['delete']);
                 deletePaths.forEach((path) => {
                     self._rootFirebase.child(path).set(null);
                 });
             }
-            if(firebaseData['update']) {
+            if (firebaseData['update']) {
                 var updatePaths = Object.keys(firebaseData['update']);
                 updatePaths.forEach((path) => {
                     self._rootFirebase.child(path).update(firebaseData['update'][path]);
                 });
             }
         }
+    }
+
+    get syncedData() {
+        return this._cachedData;
     }
 
     _syncInitialData() {
