@@ -19,7 +19,6 @@ try {
     config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 } catch (e) {
     console.log('"' + configFile + '" not found');
-    console.log(e);
 }
 
 if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
