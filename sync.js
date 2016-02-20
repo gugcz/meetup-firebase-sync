@@ -12,12 +12,14 @@ const customFirebaseDefinition = require('./gug_cz_firebase_definition');
 
 var params = process.argv.slice(2);
 
+var configFile = __dirname + '/firebase_config.json';
 var config;
 try {
-    var configFile = __dirname + 'firebase_config.json';
     fs.accessSync(configFile, fs.R_OK);
     config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 } catch (e) {
+    console.log('"' + configFile + '" not found');
+    console.log(e);
 }
 
 if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
