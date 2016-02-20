@@ -14,7 +14,7 @@ var params = process.argv.slice(2);
 
 var config;
 try {
-    var configFile = 'firebase_config.json';
+    var configFile = __dirname + 'firebase_config.json';
     fs.accessSync(configFile, fs.R_OK);
     config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 } catch (e) {

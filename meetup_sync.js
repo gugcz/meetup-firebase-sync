@@ -8,7 +8,7 @@ const fs = require('fs');
 const EventEmitter = require('events');
 const request = require('request');
 
-var keepLastFetchFile = '.meetup_firebase_last_sync';
+var keepLastFetchFile = __dirname + '.meetup_firebase_last_sync';
 
 class MeetupSync extends EventEmitter {
 
