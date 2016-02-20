@@ -8,14 +8,14 @@ const fs = require('fs');
 const EventEmitter = require('events');
 const request = require('request');
 
-var configFile = '.meetup_firebase_sync_config';
+var keepLastFetchFile = '.meetup_firebase_last_sync';
 
 class MeetupSync extends EventEmitter {
 
     contructor() {
         try {
-            fs.accessSync(configFile, fs.R_OK | fs.W_OK);
-            var config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+            fs.accessSync(keepLastFetchFile, fs.R_OK | fs.W_OK);
+            var config = JSON.parse(fs.readFileSync(keepLastFetchFile, 'utf8'));
             if (config['last_m_time']) {
                 this._lastMTime = config['last_m_time'];
             }
@@ -72,7 +72,7 @@ class MeetupSync extends EventEmitter {
     }
 
     _saveLastMTime() {
-        fs.writeFile(configFile, JSON.stringify({last_m_time: this._lastMTime}));
+        fs.writeFile(keepLastFetchFile, JSON.stringify({last_m_time: this._lastMTime}));
     }
 
 }

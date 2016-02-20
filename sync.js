@@ -6,19 +6,26 @@
 
 const CommunityFirebaseManager = require('./community_fb_manager');
 const MeetupSync = require('./meetup_sync');
+
 const customFirebaseDefinition = require('./gug_cz_firebase_definition');
 
-var params;
+var params = process.argv.slice(2);
 
-if (process.argv.length < 4) {
-    console.log('Missing params, usage:');
-    console.log('node sync_firebase.js "<firebaseAppId>" "<firebaseAppSecret>"');
-    return;
-} else {
-    params = process.argv.slice(2);
+var config;
+try {
+    var configFile = 'firebase_config.json';
+    fs.accessSync(configFile, fs.R_OK);
+    config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+} catch (e) {
 }
 
-var fbManager = new CommunityFirebaseManager(params[0], params[1], customFirebaseDefinition.dataModel);
+if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
+    console.log('Missing configuration, make sure you have "firebase_config.json" with all data filled');
+    return;
+}
+
+var fbManager = new CommunityFirebaseManager(config['firebase_app_id'],
+    config['firebase_app_secret'], customFirebaseDefinition.dataModel);
 
 fbManager.on('initialized', () => {
     console.log('Firebase initialized & authenticated');

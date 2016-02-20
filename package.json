@@ -2,7 +2,7 @@
   "name": "gug-meetup-sync",
   "version": "0.0.1",
   "description": "",
-  "main": "sync_gug_firebase.js",
+  "main": "sync.js",
   "dependencies": {
     "firebase": "^2.4.1",
     "geofire": "^3.2.4",
