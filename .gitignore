@@ -2,3 +2,4 @@
 .idea
 node_modules
 .meetup_firebase_sync_config
+firebase_config.json
