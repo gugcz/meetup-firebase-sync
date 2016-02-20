@@ -34,14 +34,28 @@ class CommunityFirebaseManager extends EventEmitter {
     }
 
     pushEvent(event, processor, eventFilter) {
-        if (eventsFilter(event, this._cachedData)) {
+        if (eventFilter(event, this._cachedData)) {
             console.log('new event detected, processing to firebase: ' + event.id);
             var firebaseData = processor.processEvent(event, this._cachedData);
-            var dataPaths = Object.keys(firebaseData);
+            if(firebaseData['save']) {
+                var pushPaths = Object.keys(firebaseData['save']);
+                pushPaths.forEach((path) => {
+                    self._rootFirebase.child(path).set(firebaseData['save'][path]);
+                });
+            }
+            if(firebaseData['delete']) {
+                var deletePaths = Object.keys(firebaseData['delete']);
+                deletePaths.forEach((path) => {
+                    self._rootFirebase.child(path).set(null);
+                });
+            }
+            if(firebaseData['update']) {
+                var updatePaths = Object.keys(firebaseData['update']);
+                updatePaths.forEach((path) => {
+                    self._rootFirebase.child(path).update(firebaseData['update'][path]);
+                });
+            }
             var self = this;
-            dataPaths.forEach((path) => {
-                self._rootFirebase.child(path).set(firebaseData[path]);
-            });
         }
     }
 
