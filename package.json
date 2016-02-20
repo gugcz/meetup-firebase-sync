@@ -1,0 +1,17 @@
+{
+  "name": "gug-meetup-sync",
+  "version": "0.0.1",
+  "description": "",
+  "main": "sync_gug_firebase.js",
+  "dependencies": {
+    "firebase": "^2.4.1",
+    "geofire": "^3.2.4",
+    "request": "^2.69.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Filip Prochazka (@jacktech24)",
+  "license": "ISC"
+}
