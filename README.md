@@ -34,11 +34,19 @@ Create file: 'firebase_config.json', example content:
 __Import existing meetups to Firebase__
 ```
 root@machine:~# node sync.js --import
+
+or
+
+root@machine:~# ./bin/meetup-sync --import
 ```
 
 __Fetch new meetups / edits / removals and push them to Firebase__
 ```
 root@machine:~# node sync.js
+
+or
+
+root@machine:~# ./bin/meetup-sync
 ```
 
 ## Custom Firebase structure
