@@ -13,10 +13,9 @@ root@machine:~# npm install gugcz/meetup-firebase-sync
 ```
 Don't forget to use sudo if you are not root
 
-__2) Install dependencies__
+__2) Go to installation directory__
 ```
 root@machine:~# cd node_modules/meetup-firebase-sync
-root@machine:~# npm install
 ```
 
 __3) Configure Firebase__
