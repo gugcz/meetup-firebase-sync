@@ -29,6 +29,8 @@ if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
     return;
 }
 
+winston.info('Initializing connection to Firebase "' + config['firebase_app_id'] + '"');
+
 var fbManager = new CommunityFirebaseManager(config['firebase_app_id'],
     config['firebase_app_secret'], customFirebaseDefinition.dataModel);
 
