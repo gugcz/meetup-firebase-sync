@@ -30,30 +30,26 @@ class MeetupSync extends EventEmitter {
             var endLoop = function () {
                 this.emit('fetch_complete', fetchedMeetups);
             }.bind(this);
-            var continueLoop = function() {
-                if(i < meetupGroupUrlNames.length) {
+            var continueLoop = function () {
+                if (i < meetupGroupUrlNames.length) {
                     let urlName = meetupGroupUrlNames[i];
                     i++;
                     if (urlName) {
-                        console.log('Fetching all meetups for group "' + urlName + '"');
                         request('https://api.meetup.com/' + urlName + '/events?&sign=true&photo-host=public&page=0&status=past,upcoming,proposed',
                             function (error, response, body) {
-                                if(error) {
-                                    console.error('Fetching meetups for group "' + urlName + '" failed');
-                                    console.error(error);
+                                if (error) {
+                                    this.emit('fetch_failed', urlName, error);
                                     return;
                                 }
                                 try {
                                     var events = JSON.parse(body);
                                     var ids = Object.keys(events);
-                                    console.log('Fetched ' + ids.length + ' meetups for group "' + urlName + '"');
                                     for (var i = 0; i < ids.length; i++) {
                                         this.emit('event_received', events[ids[i]]);
                                     }
                                     fetchedMeetups += ids.length;
                                 } catch (e) {
-                                    console.error('Fetching meetups for group "' + urlName + '" failed');
-                                    console.error(e);
+                                    this.emit('fetch_failed', urlName, e);
                                 }
                                 continueLoop();
                             }.bind(this));
@@ -75,16 +71,20 @@ class MeetupSync extends EventEmitter {
             eventStreamUrl += '?since_mtime=' + this._lastMTime;
         }
 
-        request(eventStreamUrl).on('data', function (e) {
-            try {
-                var event = JSON.parse(e.toString('utf8').trim().replace('\n\r', ''));
-                this._lastMTime = event.mtime;
-                this._saveLastMTime();
-                this.emit('event_received', event);
-            } catch (ex) {
-                this.emit('event_parse_failed', ex);
-            }
-        }.bind(this));
+        request(eventStreamUrl)
+            .on('connect', function (e) {
+                this.emit('stream_connected', eventStreamUrl);
+            }.bind(this))
+            .on('data', function (e) {
+                try {
+                    var event = JSON.parse(e.toString('utf8').trim().replace('\n\r', ''));
+                    this._lastMTime = event.mtime;
+                    this._saveLastMTime();
+                    this.emit('event_received', event);
+                } catch (ex) {
+                    this.emit('event_parse_failed', ex);
+                }
+            }.bind(this));
     }
 
     _saveLastMTime() {

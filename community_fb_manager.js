@@ -31,7 +31,6 @@ class CommunityFirebaseManager extends EventEmitter {
                 });
                 self._syncInitialData();
             } else {
-                console.error('Authorization failed!, invalid token');
                 self.emit('auth_error');
             }
         });
@@ -39,7 +38,7 @@ class CommunityFirebaseManager extends EventEmitter {
 
     pushEvent(event, processor) {
         if (processor.eventsFilter(event, this._cachedData)) {
-            console.log('saving meetup ID:' + event.id + ', NAME: "' + event.name + '"');
+            this.emit('processing_event', event);
             var output = {
                 save: {},
                 delete: [],

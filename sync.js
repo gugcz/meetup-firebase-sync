@@ -4,12 +4,14 @@
 
 "use strict";
 
+const winston = require('winston');
 const fs = require('fs');
 const CommunityFirebaseManager = require('./community_fb_manager');
 const MeetupSync = require('./meetup_sync');
 
 const customFirebaseDefinition = require('./gug_cz_firebase_definition');
 
+winston.exitOnError = false;
 var params = process.argv.slice(2);
 
 var configFile = __dirname + '/firebase_config.json';
@@ -18,11 +20,11 @@ try {
     fs.accessSync(configFile, fs.R_OK);
     config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 } catch (e) {
-    console.log('"' + configFile + '" not found');
+    winston.warn('File "' + configFile + '" not found');
 }
 
 if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
-    console.log('Missing configuration, make sure you have "firebase_config.json" with all data filled');
+    winston.error('Missing configuration, make sure you have "firebase_config.json" with all data filled');
     process.exit(1);
     return;
 }
@@ -31,31 +33,44 @@ var fbManager = new CommunityFirebaseManager(config['firebase_app_id'],
     config['firebase_app_secret'], customFirebaseDefinition.dataModel);
 
 fbManager.on('initialized', () => {
-    console.log('Firebase initialized & authenticated');
+    winston.info('Firebase "' + config['firebase_app_id'] + '" initialized & authenticated');
     var meetupSync = new MeetupSync();
     var meetupProcessor = new customFirebaseDefinition.processor();
     meetupSync.on('event_received', (event) => {
         fbManager.pushEvent(event, meetupProcessor);
     });
+    fbManager.on('processing_event', (event) => {
+        winston.info('Saving meetup (ID:' + event.id + ', NAME: "' + event.name + '")');
+    });
 
-    if(params[0] === '--import') {
-        console.log('Importing all existing meetups');
+    if (params[0] === '--import') {
+
+        winston.info('Importing all existing meetups');
+
         meetupSync.on('fetch_complete', (count) => {
-            console.log('\n\nImport of existing meetups complete, count: ' + count);
-            console.log('App will terminate in 3 seconds...');
-            setTimeout(function() {
+            winston.info('Import of existing meetups complete, count: ' + count);
+            winston.info('App will terminate in 3 seconds...');
+            setTimeout(function () {
                 process.exit(0);
             }, 3000);
         });
+        meetupSync.on('fetch_failed', (urlName, e) => {
+            winston.error('Fetching "' + urlName + '" failed: ' + e.message);
+        });
+
         meetupSync.fetchExisting(
-            customFirebaseDefinition.dataModel.getImportGroupUrlNames(fbManager.syncedData));
+            customFirebaseDefinition.dataModel.getImportGroupUrlNames(fbManager.syncedData),
+            customFirebaseDefinition.dataModel);
     } else {
+        meetupSync.on('stream_connected', (streamUrl) => {
+            winston.info('Meetup stream connected: "' + streamUrl + '"');
+        });
         meetupSync.connectMeetupStreams();
     }
 
 });
 
 fbManager.on('auth_failed', () => {
-    console.error('Firebase initialization failed, invalid app Secret');
+    winston.error('Firebase "' + config['firebase_app_id'] + '" initialization failed, invalid app Secret');
     process.exit(1);
 });

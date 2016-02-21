@@ -6,7 +6,8 @@
   "dependencies": {
     "firebase": "^2.4.1",
     "geofire": "^3.2.4",
-    "request": "^2.69.0"
+    "request": "^2.69.0",
+    "winston": "^2.1.1"
   },
   "devDependencies": {},
   "scripts": {
