@@ -36,7 +36,7 @@ class MeetupSync extends EventEmitter {
                     i++;
                     if (urlName) {
                         console.log('Fetching all meetups for group "' + urlName + '"');
-                        request('https://api.meetup.com/' + urlName + '/events?&sign=true&photo-host=public&page=0',
+                        request('https://api.meetup.com/' + urlName + '/events?&sign=true&photo-host=public&page=0&status=past,upcoming,proposed',
                             function (error, response, body) {
                                 if(error) {
                                     console.error('Fetching meetups for group "' + urlName + '" failed');
