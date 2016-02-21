@@ -9,13 +9,12 @@ Script for syncing Meetup.com data with Firebase database in NodeJS
 
 __1) Install package__
 ```
-root@machine:~# npm install gugcz/meetup-firebase-sync
+user@machine:~# npm install gugcz/meetup-firebase-sync
 ```
-Don't forget to use sudo if you are not root
 
 __2) Go to installation directory__
 ```
-root@machine:~# cd node_modules/meetup-firebase-sync
+user@machine:~# cd node_modules/meetup-firebase-sync
 ```
 
 __3) Configure Firebase__
@@ -33,27 +32,27 @@ Create file: 'firebase_config.json', example content:
 
 __Import existing meetups to Firebase__
 ```
-root@machine:~# node sync.js --import
+user@machine:~# node sync.js --import
 
 or
 
-root@machine:~# ./bin/meetup-sync --import
+user@machine:~# ./bin/meetup-sync --import
 ```
 
 __Fetch new meetups / edits / removals and push them to Firebase__
 ```
-root@machine:~# node sync.js
+user@machine:~# node sync.js
 
-or
-
-root@machine:~# ./bin/meetup-sync
+```
+```
+user@machine:~# ./bin/meetup-sync
 ```
 
 ## Custom Firebase structure
 
 You may notice that we are using Firebase structure that is suitable for us, if it isn't for you, then go and write your own Firebase definition,
 then just add to configuration file this:
-```json
+```
 {
   ... ,
   "firebase_definition": "<YOUR_DEFINITION_JS_FILENAME>"
@@ -62,7 +61,7 @@ then just add to configuration file this:
 
 If you take a look, we have our own definition in [gug_cz_firebase_definition.js](gug_cz_firebase_definition.js), so you can inspire how to write yours. The important parts are as follows:
 
-```nodejs
+```javascript
 "use strict";
 
 const MeetupProcessor = require('./meetup_processor');
