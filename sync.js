@@ -9,9 +9,18 @@ const fs = require('fs');
 const CommunityFirebaseManager = require('./community_fb_manager');
 const MeetupSync = require('./meetup_sync');
 
-const customFirebaseDefinition = require('./gug_cz_firebase_definition');
+const app = require('./package.json');
 
 winston.exitOnError = false;
+
+winston.info('-----------------------------------------');
+winston.info('');
+winston.info(app.name + ' ' + app.version);
+winston.info(app.description);
+winston.info('');
+winston.info('-----------------------------------------');
+winston.info('');
+
 var params = process.argv.slice(2);
 
 var configFile = __dirname + '/firebase_config.json';
@@ -27,6 +36,20 @@ if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
     winston.error('Missing configuration, make sure you have "firebase_config.json" with all data filled');
     process.exit(1);
     return;
+}
+
+var customFirebaseDefinition;
+if (!config['firebase_definition']) {
+    customFirebaseDefinition = require('./gug_cz_firebase_definition');
+    winston.info('Using default Firebase definition "gug_cz_firebase_definition"');
+} else {
+    try {
+        customFirebaseDefinition = require('./' + config['firebase_definition']);
+        winston.info('Using custom Firebase definition "' + config['firebase_definition'] + '"');
+    } catch (e) {
+        winston.error('Firebase definition "' + config['firebase_definition'] + '" loading failed: ' + e.message);
+        process.exit(1);
+    }
 }
 
 winston.info('Initializing connection to Firebase "' + config['firebase_app_id'] + '"');

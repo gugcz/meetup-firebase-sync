@@ -1,7 +1,7 @@
 {
-  "name": "gug-meetup-sync",
-  "version": "0.0.1",
-  "description": "",
+  "name": "meetup-firebase-sync",
+  "version": "1.0.0",
+  "description": "Script for syncing Meetup.com data with Firebase database in NodeJS",
   "main": "sync.js",
   "dependencies": {
     "firebase": "^2.4.1",
@@ -13,6 +13,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Filip Prochazka (@jacktech24)",
-  "license": "ISC"
+  "repository": "gugcz/meetup-firebase-sync",
+  "author": "GUG.cz",
+  "contributors": [
+    {
+      "name": "Filip Prochazka",
+      "email": "filip@jacktech.cz",
+      "url": "http://www.jacktech.cz"
+    }
+  ],
+  "license": "MIT"
 }
