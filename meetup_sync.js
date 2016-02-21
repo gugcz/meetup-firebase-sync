@@ -72,9 +72,6 @@ class MeetupSync extends EventEmitter {
         }
 
         request(eventStreamUrl)
-            .on('connect', function (e) {
-                this.emit('stream_connected', eventStreamUrl);
-            }.bind(this))
             .on('data', function (e) {
                 try {
                     var event = JSON.parse(e.toString('utf8').trim().replace('\n\r', ''));
@@ -85,6 +82,7 @@ class MeetupSync extends EventEmitter {
                     this.emit('event_parse_failed', ex);
                 }
             }.bind(this));
+        this.emit('stream_connected', eventStreamUrl);
     }
 
     _saveLastMTime() {
