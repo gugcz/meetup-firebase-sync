@@ -25,30 +25,46 @@ class MeetupSync extends EventEmitter {
 
     fetchExisting(meetupGroupUrlNames) {
         if (meetupGroupUrlNames) {
-            meetupGroupUrlNames.forEach(function (urlName) {
-                if (urlName) {
-                    console.log('Fetching all meetups for group "' + urlName + '"');
-                    request('https://api.meetup.com/' + urlName + '/events?&sign=true&photo-host=public&page=0',
-                        function (error, response, body) {
-                            if(error) {
-                                console.error('Fetching meetups for group "' + urlName + '" failed');
-                                console.error(error);
-                                return;
-                            }
-                            try {
-                                var events = JSON.parse(body);
-                                var ids = Object.keys(events);
-                                console.log('Fetched ' + ids.length + ' meetups for group "' + urlName + '"');
-                                for (var i = 0; i < ids.length; i++) {
-                                    this.emit('event_received', events[ids[i]]);
+            var i = 0;
+            var fetchedMeetups = 0;
+            var endLoop = function () {
+                this.emit('fetch_complete', fetchedMeetups);
+            }.bind(this);
+            var continueLoop = function() {
+                if(i < meetupGroupUrlNames.length) {
+                    let urlName = meetupGroupUrlNames[i];
+                    i++;
+                    if (urlName) {
+                        console.log('Fetching all meetups for group "' + urlName + '"');
+                        request('https://api.meetup.com/' + urlName + '/events?&sign=true&photo-host=public&page=0',
+                            function (error, response, body) {
+                                if(error) {
+                                    console.error('Fetching meetups for group "' + urlName + '" failed');
+                                    console.error(error);
+                                    return;
                                 }
-                            } catch (e) {
-                                console.error('Fetching meetups for group "' + urlName + '" failed');
-                                console.error(e);
-                            }
-                        }.bind(this));
+                                try {
+                                    var events = JSON.parse(body);
+                                    var ids = Object.keys(events);
+                                    console.log('Fetched ' + ids.length + ' meetups for group "' + urlName + '"');
+                                    for (var i = 0; i < ids.length; i++) {
+                                        this.emit('event_received', events[ids[i]]);
+                                    }
+                                    fetchedMeetups += ids.length;
+                                } catch (e) {
+                                    console.error('Fetching meetups for group "' + urlName + '" failed');
+                                    console.error(e);
+                                }
+                                continueLoop();
+                            }.bind(this));
+                    } else {
+                        continueLoop();
+                    }
+                } else {
+                    endLoop();
                 }
-            }.bind(this));
+            }.bind(this);
+            continueLoop();
         }
     }
 

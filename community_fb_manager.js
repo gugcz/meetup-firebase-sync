@@ -18,7 +18,7 @@ class CommunityFirebaseManager extends EventEmitter {
 
         this._dataModel = dataModel;
         this._rootFirebase = new Firebase('https://' + urlKey + '.firebaseio.com/');
-        this._geoFire = new GeoFire(this._rootFirebase); //todo: utilize this
+        this._geoFire = new GeoFire(this._rootFirebase.child(dataModel.geofirePath));
 
         var self = this;
         this._rootFirebase.authWithCustomToken(secret, function (error, authData) {
@@ -42,25 +42,37 @@ class CommunityFirebaseManager extends EventEmitter {
             console.log('saving meetup ID:' + event.id + ', NAME: "' + event.name + '"');
             var output = {
                 save: {},
-                delete: {},
-                update: {}
+                delete: [],
+                update: {},
+                save_geofire: {},
+                delete_geofire: []
             };
             var self = this;
             var firebaseData = processor.processEvent(event, this._cachedData, output);
             if (firebaseData['save']) {
-                var pushPaths = Object.keys(firebaseData['save']);
+                let pushPaths = Object.keys(firebaseData['save']);
                 pushPaths.forEach((path) => {
                     self._rootFirebase.child(path).set(firebaseData['save'][path]);
                 });
             }
+            if (firebaseData['save_geofire']) {
+                let geofireKeys = Object.keys(firebaseData['save_geofire']);
+                geofireKeys.forEach((key) => {
+                    self._geoFire.set(key, firebaseData['save_geofire'][key]);
+                });
+            }
             if (firebaseData['delete']) {
-                var deletePaths = Object.keys(firebaseData['delete']);
-                deletePaths.forEach((path) => {
+                firebaseData['delete'].forEach((path) => {
                     self._rootFirebase.child(path).set(null);
                 });
             }
+            if (firebaseData['delete_geofire']) {
+                firebaseData['delete_geofire'].forEach((key) => {
+                    self._geoFire.remove(key);
+                });
+            }
             if (firebaseData['update']) {
-                var updatePaths = Object.keys(firebaseData['update']);
+                let updatePaths = Object.keys(firebaseData['update']);
                 updatePaths.forEach((path) => {
                     self._rootFirebase.child(path).update(firebaseData['update'][path]);
                 });

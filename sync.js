@@ -23,6 +23,7 @@ try {
 
 if (!config || !config['firebase_app_id'] || !config['firebase_app_secret']) {
     console.log('Missing configuration, make sure you have "firebase_config.json" with all data filled');
+    process.exit(1);
     return;
 }
 
@@ -39,6 +40,13 @@ fbManager.on('initialized', () => {
 
     if(params[0] === '--import') {
         console.log('Importing all existing meetups');
+        meetupSync.on('fetch_complete', (count) => {
+            console.log('\n\nImport of existing meetups complete, count: ' + count);
+            console.log('App will terminate in 3 seconds...');
+            setTimeout(function() {
+                process.exit(0);
+            }, 3000);
+        });
         meetupSync.fetchExisting(
             customFirebaseDefinition.dataModel.getImportGroupUrlNames(fbManager.syncedData));
     } else {
@@ -49,4 +57,5 @@ fbManager.on('initialized', () => {
 
 fbManager.on('auth_failed', () => {
     console.error('Firebase initialization failed, invalid app Secret');
+    process.exit(1);
 });

@@ -10,7 +10,7 @@ class GugMeetupProcessor extends MeetupProcessor {
 
     processEvent(meetupEvent, syncedData, output) {
         if (meetupEvent.status === 'canceled' || meetupEvent.status === 'deleted') {
-            output['delete']['events/' + meetupEvent.id] = true;
+            output['delete'].push('events/' + meetupEvent.id);
         } else {
             try {
                 output['save']['events/' + meetupEvent.id] = {
@@ -19,7 +19,7 @@ class GugMeetupProcessor extends MeetupProcessor {
                     meetup_url: this._createEventUrl(meetupEvent),
                     name: meetupEvent.name,
                     time: meetupEvent.time ? meetupEvent.time : -1,
-                    venue: meetupEvent.venue ? meetupEvent.venue : {},
+                    venue_id: this._processVenue(syncedData['venues'], meetupEvent.venue, output),
                     chapters: this._findChapters(syncedData['chapters'], [meetupEvent.group.id])
                 };
             } catch (e) {
@@ -38,6 +38,53 @@ class GugMeetupProcessor extends MeetupProcessor {
             }
         }
         return false;
+    }
+
+    _processVenue(venues, meetupVenue, output) {
+        var response = {};
+        if (meetupVenue) {
+            if (meetupVenue.id) {
+                response = meetupVenue.id;
+                var venueIds = Object.keys(venues);
+                var exists = false;
+                for (var i = 0; i < venueIds.length; i++) {
+                    if (venueIds[i] === meetupVenue.id) {
+                        exists = true;
+                    }
+                }
+                if (!exists) {
+                    output['save']['venues/' + meetupVenue.id] = {
+                        address: this._joinStringIfDefined([
+                                meetupVenue['address_1'],
+                                meetupVenue['address_2'],
+                                meetupVenue['address_3'],
+                                meetupVenue['city'],
+                                meetupVenue['status']
+                            ], ', '),
+                        name: meetupVenue.name,
+                        location: {
+                            lat: meetupVenue.lat,
+                            lon: meetupVenue.lon
+                        }
+                    };
+                    output['save_geofire']['venue_' + meetupVenue.id] = [meetupVenue.lat, meetupVenue.lon];
+                }
+            } else {
+                console.log('missing meetup venue ID');
+            }
+        }
+        return response;
+    }
+
+    _joinStringIfDefined(strings, delimiter) {
+        var output = '';
+        strings.forEach(function (part) {
+            if (part) {
+                output += part + delimiter;
+            }
+        }.bind(this));
+        output = output.substring(0, output.length - delimiter.length);
+        return output.trim();
     }
 
     _createEventUrl(meetupEvent) {
@@ -69,6 +116,7 @@ var dataModel = {
         'chapters', 'orgs', 'venues', 'events'
     ],
     eventsPath: 'events',
+    geofirePath: 'geofire',
     getImportGroupUrlNames: function (syncedData) {
         var ids = [];
         var chapterKeys = Object.keys(syncedData['chapters']);
