@@ -1,9 +1,17 @@
 # meetup-firebase-sync
-Script for syncing Meetup.com data with Firebase database in NodeJS
+A script for syncing Meetup.com data with Firebase database in NodeJS.
+
+## Features
+- fetches events and venues from selected Meetup groups
+- saves data to Firebase where it can be easily used my many Firebase UI libraries
+- supports custom Firebase structure
+- includes initial data import and then real-time updates using [OpenEvents Stream API](http://www.meetup.com/meetup_api/docs/stream/2/open_events/)
+- uses [GeoFire](https://github.com/firebase/geofire/) for venue locations - can be used for geo-queries
 
 ## Requirements
 
  - NodeJS 5.6
+ - Always-running server with persistent connection to Meetup API. We recommend ComputeEngine micro VM.
 
 ## Installation (Linux):
 
