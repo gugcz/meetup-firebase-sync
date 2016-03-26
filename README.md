@@ -102,5 +102,6 @@ module.exports = {
     dataModel: dataModel
 };
 ```
-
-TODO: information about ```output``` variable and how to use it, for now check [gug_cz_firebase_definition.js](gug_cz_firebase_definition.js)
+## Roadmap
+ - simplify configuration - it should be more declarative, less code
+ - add information about ```output``` variable and how to use it, for now check [gug_cz_firebase_definition.js](gug_cz_firebase_definition.js)
